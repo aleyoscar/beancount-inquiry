@@ -1,0 +1,164 @@
+option "operating_currency" "USD"
+
+2014-01-01 open Liabilities:CreditCard:CapitalOne     USD
+2014-01-01 open Assets:MyBank:Savings USD
+2014-01-01 open Assets:MyBank:Checking     USD
+2014-01-01 open Expenses:Taxes:TY2014:Federal USD
+2014-01-01 open Expenses:Taxes:TY2014:StateNY USD
+2014-01-01 open Expenses:Taxes:TY2014:SocSec USD
+2014-01-01 open Expenses:Taxes:TY2014:SDI USD
+2014-01-01 open Expenses:Taxes:TY2014:Medicare USD
+2014-01-01 open Income:AcmeCorp:Salary USD
+1990-01-01 open Expenses:Restaurant USD
+2014-01-01 open Assets:AccountsReceivable:John USD
+2014-01-01 open Expenses:Shopping USD
+2014-01-01 open Assets:AccountsReceivable:Michael USD
+2014-01-01 open Assets:FR:SocGen:Checking CAD
+2014-01-01 open Assets:ETrade:Cash USD
+2014-01-01 open Assets:ETrade:IVV IVV
+2014-01-01 open Income:ETrade:CapitalGains USD
+2014-01-01 open Expenses:Flights USD
+2014-01-01 open Expenses:UK:Fees:WireTransfers GBP
+2014-01-01 open Expenses:US:Fees:WireTransfers USD
+2014-01-01 open Assets:OANDA:GBPounds GBP
+2014-01-01 open Assets:Brittania:PrivateBanking GBP
+2014-01-01 open Assets:OANDA:USDollar USD
+2014-01-01 open Assets:Investing:Funds RGAGX
+2014-01-01 open Equity:Opening-Balances USD
+
+2014-05-05 * "Using my new credit card"
+  Liabilities:CreditCard:CapitalOne         -37.45 USD
+  Expenses:Restaurant
+
+; Closing credit card after fraud was detected.
+2016-11-28 close Liabilities:CreditCard:CapitalOne
+
+1867-07-01 commodity USD
+1867-07-01 commodity GBP
+1867-07-01 commodity IVV
+1867-07-01 commodity RGAGX
+1867-07-01 commodity VACHR
+
+1867-07-01 commodity CAD
+  name: "Canadian Dollar"
+  asset-class: "cash"
+
+2012-01-01 commodity HOOL
+  name: "Hooli Corporation Class C Shares"
+  asset-class: "stock"
+
+2014-05-05 * "Cafe Mogador" "Lamb tagine with wine"
+  Liabilities:CreditCard:CapitalOne         -37.45 USD
+  Expenses:Restaurant
+
+2014-05-06 ! "Cafe Mogadora" "Lamb tagine with wines"
+  Liabilities:CreditCard:CapitalOne         -45.37 USD
+  Expenses:Restaurant
+
+2014-05-05 * "Transfer from Savings account"
+  Assets:MyBank:Checking            -400.00 USD
+  ! Assets:MyBank:Savings
+
+2014-03-19 * "Acme Corp" "Bi-monthly salary payment"
+  Assets:MyBank:Checking             3062.68 USD     ; Direct deposit
+  Income:AcmeCorp:Salary            -4615.38 USD     ; Gross salary
+  Expenses:Taxes:TY2014:Federal       920.53 USD     ; Federal taxes
+  Expenses:Taxes:TY2014:SocSec        286.15 USD     ; Social security
+  Expenses:Taxes:TY2014:Medicare       66.92 USD     ; Medicare
+  Expenses:Taxes:TY2014:StateNY       277.90 USD     ; New York taxes
+  Expenses:Taxes:TY2014:SDI             1.20 USD     ; Disability insurance
+
+2014-10-05 * "Costco" "Shopping for birthday"
+  Liabilities:CreditCard:CapitalOne         -45.00          USD
+  Assets:AccountsReceivable:John            ((40.00/3) + 5) USD
+  Assets:AccountsReceivable:Michael         40.00/3         USD
+  Expenses:Shopping
+
+2014-11-03 * "Transfer to account in Canada"
+  Assets:MyBank:Checking            -400.00 USD @ 1.09 CAD
+  Assets:FR:SocGen:Checking
+
+2014-11-03 * "Transfer to account in Canada"
+  Assets:MyBank:Checking            -400.00 USD @@ 436.01 CAD
+  Assets:FR:SocGen:Checking          436.01 CAD
+
+2014-02-11 * "Bought shares of S&P 500"
+  Assets:ETrade:IVV                10 IVV {183.07 USD}
+  Assets:ETrade:Cash         -1830.70 USD
+
+2014-07-11 * "Sold shares of S&P 500"
+  Assets:ETrade:IVV               -10 IVV {183.07 USD} @ 197.90 USD
+  Assets:ETrade:Cash          1979.90 USD
+  Income:ETrade:CapitalGains
+
+2014-07-11 * "Sold shares of S&P 500"
+  Assets:ETrade:IVV                 -10 IVV {183.07 USD} @ 197.90 USD
+  Assets:ETrade:Cash
+
+2014-04-23 * "Flight to Berlin" #berlin-trip-2014
+  Expenses:Flights              -1230.27 USD
+  Liabilities:CreditCard:CapitalOne
+
+2014-04-24 * "Another Flight to Berlin" #berlin-trip-2014 #germany
+  Expenses:Flights              -2730.12 USD
+  Liabilities:CreditCard:CapitalOne
+
+pushtag #berlin-trip-2014
+
+2014-04-23 * "Yet Another Flight to Berlin"
+  Expenses:Flights              -3012.72 USD
+  Liabilities:CreditCard:CapitalOne
+
+poptag #berlin-trip-2014
+
+2014-02-05 * "Moving money to Isle of Man" ^transfers-offshore-17
+  Assets:MyBank:Savings          -40000.00 USD
+  Assets:MyBank:Checking          40000.00 USD
+
+2014-02-09 * "Wire to FX broker" ^transfers-offshore-17
+  Assets:MyBank:Checking         -40025.00 USD
+  Expenses:US:Fees:WireTransfers            25.00 USD
+  Assets:OANDA:USDollar               40000.00
+
+2014-03-16 * "Conversion to offshore beans" ^transfers-offshore-17
+  Assets:OANDA:USDollar          -40000.00 USD
+  Assets:OANDA:GBPounds           23391.81 GBP @ 1.71 USD
+
+2014-03-16 * "God save the Queen (and taxes)" ^transfers-offshore-17
+  Assets:OANDA:GBPounds             -23391.81 GBP
+  Expenses:UK:Fees:WireTransfers           15.00 GBP
+  Assets:Brittania:PrivateBanking    23376.81 GBP
+
+2014-03-16 * "Trading for RGAGX"
+  Assets:MyBank:Checking -482.00 USD @@ 319.020 RGAGX
+  Assets:Investing:Funds
+
+2014-12-26 balance Liabilities:CreditCard:CapitalOne   6753.11 USD
+2014-09-20 balance Assets:Investing:Funds     319.020 ~ 0.002 RGAGX
+
+; 2014-06-01 pad Assets:MyBank:Checking Equity:Opening-Balances
+
+2014-06-01 pad Assets:MyBank:Checking Equity:Opening-Balances
+
+2014-06-02 balance Assets:MyBank:Checking 500.00 USD
+
+2014-11-03 note Liabilities:CreditCard:CapitalOne "Called about fraudulent card."
+
+2014-07-09 price HOOL 579.18 USD
+
+2014-07-09 price VACHR  38.46 USD  ; Equiv. $80,000 year
+
+2014-07-09 event "location" "Paris, France"
+
+2014-01-01 custom "test" TRUE 45.30 USD
+
+2013-04-14 open Assets:BTrade:HOOLI
+  category: "taxable"
+
+option "title" "Ed’s Personal Ledger"
+
+plugin "beancount.plugins.check_commodity"
+
+2100-01-01 query "balance" "SELECT date, account, sum(number) as total GROUP BY account, date ORDER BY account"
+2100-01-01 query "balance-account" "SELECT date, account, sum(number) as total WHERE account ~ '{}' GROUP BY account, date ORDER BY account"
+2100-01-01 query "balance-date" "SELECT date, account, sum(number) as total WHERE date >= {date} GROUP BY account, date ORDER BY account"
