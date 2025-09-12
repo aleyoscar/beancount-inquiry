@@ -86,20 +86,26 @@ def bean_inquiry(
         file_okay=True,
         dir_okay=False,
         readable=True,
-        resolve_path=True)],
-    name: Annotated[str, typer.Argument(help="The name of the query to parse")],
-    params: Annotated[str, typer.Option(
-        "--params", "-p",
+        resolve_path=True
+    )],
+    name: Annotated[str, typer.Argument(
+        help="The name of the query to parse",
+        show_default=False
+    )] = "",
+    params: Annotated[str, typer.Argument(
         help="Parameters in JSON or Python literal format (e.g., '\"value\"', '[1,2]', '{\"key\": \"value\"}')",
-        show_default=False)] = "",
+        show_default=False
+    )] = "",
     format: Annotated[str, typer.Option(
         "--format", "-f",
         help="Output format: 'text' or 'csv'",
-        case_sensitive=False)] = "text",
+        case_sensitive=False
+    )] = "text",
     check: Annotated[bool, typer.Option(
         "--check", "-c",
         help="Check a query for what parameters are needed",
-        show_default=False)] = False
+        show_default=False
+    )] = False,
     list_queries: Annotated[bool, typer.Option(
         "--list", "-l",
         help="List all queries available in ledger",
