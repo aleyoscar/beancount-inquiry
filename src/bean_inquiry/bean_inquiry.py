@@ -100,6 +100,11 @@ def bean_inquiry(
         "--check", "-c",
         help="Check a query for what parameters are needed",
         show_default=False)] = False
+    list_queries: Annotated[bool, typer.Option(
+        "--list", "-l",
+        help="List all queries available in ledger",
+        show_default=False
+    )] = False
 ) -> None:
     """
     Beancount Inquiry - A tool to inject parameters into Beancount queries.
@@ -114,7 +119,16 @@ def bean_inquiry(
         raise typer.Exit(code=1)
     entries, options = result
 
-    # Find query by name
+    # Find queries
+    query_entries = [q for q in entries if isinstance(q, Query)]
+    if not query_entries:
+        typer.echo("Error: No queries found in ledger")
+        raise typer.Exit(code=1)
+    if list_queries:
+        for q in query_entries:
+            typer.echo(f"{q.name}")
+        raise typer.Exit()
+
     query_entry = next((q for q in entries if isinstance(q, Query) and q.name == name), None)
     if not query_entry:
         typer.echo(f"Error: No query found with name '{name}' in ledger")
