@@ -83,14 +83,15 @@ def main(
 		error_quit(f"Please install git")
 	if not installed('git-chglog'):
 		error_quit(f"Please install git-chglog")
-	prev_version = run(['git', 'describe', '--tags', '--abbrev=0'], "[success]Getting previous version[/]")
-	if not re.fullmatch(semver_pattern, prev_version):
-		error_quit(f"Invalid previous version [number]{prev_version}[/]")
-	else:
-		console.print(f"Previous version: [number]{prev_version}[/]")
-	for path in replace:
-		if not dry: update_version(path, prev_version, version)
-		else: console.print(f"[success]Will update version info in [file]{path}[/][/]")
+	if len(replace):
+		prev_version = run(['git', 'describe', '--tags', '--abbrev=0'], "[success]Getting previous version[/]")
+		if not re.fullmatch(semver_pattern, prev_version):
+			error_quit(f"Invalid previous version [number]{prev_version}[/]")
+		else:
+			console.print(f"Previous version: [number]{prev_version}[/]")
+		for path in replace:
+			if not dry: update_version(path, prev_version, version)
+			else: console.print(f"[success]Will update version info in [file]{path}[/][/]")
 	if dry:
 		run(['git-chglog', '--next-tag', version])
 		run(['git-chglog', '--config', str(config), '--next-tag', version, version])
