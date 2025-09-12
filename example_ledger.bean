@@ -133,7 +133,7 @@ poptag #berlin-trip-2014
   Assets:MyBank:Checking -482.00 USD @@ 319.020 RGAGX
   Assets:Investing:Funds
 
-2014-12-26 balance Liabilities:CreditCard:CapitalOne   6753.11 USD
+2014-12-26 balance Liabilities:CreditCard:CapitalOne   6807.84 USD
 2014-09-20 balance Assets:Investing:Funds     319.020 ~ 0.002 RGAGX
 
 ; 2014-06-01 pad Assets:MyBank:Checking Equity:Opening-Balances
@@ -162,3 +162,5 @@ plugin "beancount.plugins.check_commodity"
 2100-01-01 query "balance" "SELECT date, account, sum(number) as total GROUP BY account, date ORDER BY account"
 2100-01-01 query "balance-account" "SELECT date, account, sum(number) as total WHERE account ~ '{}' GROUP BY account, date ORDER BY account"
 2100-01-01 query "balance-date" "SELECT date, account, sum(number) as total WHERE date >= {date} GROUP BY account, date ORDER BY account"
+2100-01-01 query "balance-account-date" "SELECT date, account, sum(number) as total WHERE account ~ '{}' AND date >= {} GROUP BY account, date ORDER BY account"
+2100-01-01 query "balance-account-date-name" "SELECT date, account, sum(number) as total WHERE account ~ '{account}' date >= {date} GROUP BY account, date ORDER BY account"
