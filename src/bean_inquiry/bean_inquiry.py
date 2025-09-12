@@ -2,8 +2,9 @@ import typer
 import sys
 import ast
 import json
+import re
 from pathlib import Path
-from typing import Optional, Union, Dict, List
+from typing import Optional, Union, Dict, List, Set
 from typing_extensions import Annotated
 from beancount import loader
 from beancount.core.data import Query
@@ -58,37 +59,47 @@ def validate_format(format_type: str) -> bool:
         return False
     return True
 
+def extract_required_params(query_string: str) -> Set[str]:
+    """Extract parameter placeholders from a query string."""
+    # Find all placeholders like {0}, {1}, {name}, or {}
+    placeholders = set()
+
+    # Match named and indexed placeholders (e.g., {name}, {0}, {1})
+    named_or_indexed = re.findall(r'\{([^}]*)\}', query_string)
+    for placeholder in named_or_indexed:
+        if placeholder:  # Non-empty, so it's named or indexed
+            placeholders.add(placeholder)
+
+    # Check for unnamed placeholders (e.g., {})
+    # Count occurrences of {} by replacing named/indexed ones temporarily
+    temp_string = re.sub(r'\{[^}]+\}', '', query_string)
+    unnamed_count = temp_string.count('{}')
+    for i in range(unnamed_count):
+        placeholders.add(str(i))  # Treat unnamed as indexed (0, 1, 2, ...)
+
+    return placeholders
+
 def bean_inquiry(
-    ledger: Annotated[
-        Path,
-        typer.Argument(
-            help="The Beancount ledger file to parse",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            readable=True,
-            resolve_path=True
-        )
-    ],
+    ledger: Annotated[Path, typer.Argument(
+        help="The Beancount ledger file to parse",
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        resolve_path=True)],
     name: Annotated[str, typer.Argument(help="The name of the query to parse")],
-    params: Annotated[
-        str,
-        typer.Option(
-            "--params",
-            "-p",
-            help="Parameters in JSON or Python literal format (e.g., '\"value\"', '[1,2]', '{\"key\": \"value\"}')",
-            show_default=False
-        )
-    ] = "",
-    format: Annotated[
-        str,
-        typer.Option(
-            "--format",
-            "-f",
-            help="Output format: 'text' or 'csv'",
-            case_sensitive=False
-        )
-    ] = "text"
+    params: Annotated[str, typer.Option(
+        "--params", "-p",
+        help="Parameters in JSON or Python literal format (e.g., '\"value\"', '[1,2]', '{\"key\": \"value\"}')",
+        show_default=False)] = "",
+    format: Annotated[str, typer.Option(
+        "--format", "-f",
+        help="Output format: 'text' or 'csv'",
+        case_sensitive=False)] = "text",
+    check: Annotated[bool, typer.Option(
+        "--check", "-c",
+        help="Check a query for what parameters are needed",
+        show_default=False)] = False
 ) -> None:
     """
     Beancount Inquiry - A tool to inject parameters into Beancount queries.
@@ -109,14 +120,43 @@ def bean_inquiry(
         typer.echo(f"Error: No query found with name '{name}' in ledger")
         raise typer.Exit(code=1)
 
+    query_string = query_entry.query_string
+
+    # Extract and display required parameters
+    required_params = ["{" + s + "}" for s in extract_required_params(query_string)]
+    if check:
+        if required_params:
+            typer.echo(f"Required parameters for query '{name}': {', '.join(sorted(required_params))}")
+            raise typer.Exit()
+        else:
+            typer.echo(f"No parameters required for query '{name}'")
+            raise typer.Exit()
+
     # Parse parameters
     parsed_params = parse_params(params)
     if parsed_params is None:
         raise typer.Exit(code=1)
 
+    # Validate parameters against required ones
+    if required_params:
+        if not parsed_params:
+            typer.echo("Error: Query requires parameters, but none were provided")
+            raise typer.Exit(code=1)
+        if isinstance(parsed_params, dict):
+            missing_params = required_params - set(parsed_params.keys())
+            if missing_params:
+                typer.echo(f"Error: Missing required parameters: {', '.join(sorted(missing_params))}")
+                raise typer.Exit(code=1)
+        elif isinstance(parsed_params, (list, tuple)):
+            if len(parsed_params) < len(required_params):
+                typer.echo(f"Error: Expected {len(required_params)} parameters, but got {len(parsed_params)}")
+                raise typer.Exit(code=1)
+        elif isinstance(parsed_params, str) and len(required_params) > 1:
+            typer.echo(f"Error: Single string parameter provided, but multiple parameters required: {', '.join(sorted(required_params))}")
+            raise typer.Exit(code=1)
+
     # Format query with parameters
     try:
-        query_string = query_entry.query_string
         if parsed_params:
             if isinstance(parsed_params, str):
                 query_string = query_string.format(parsed_params)
