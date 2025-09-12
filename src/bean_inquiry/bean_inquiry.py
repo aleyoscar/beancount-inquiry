@@ -135,18 +135,22 @@ def bean_inquiry(
             typer.echo(f"{q.name}")
         raise typer.Exit()
 
+    # Get query string
+    if not name:
+        typer.echo("Error: You must supply a query name to parse")
+        raise typer.Exit(code=1)
     query_entry = next((q for q in entries if isinstance(q, Query) and q.name == name), None)
     if not query_entry:
         typer.echo(f"Error: No query found with name '{name}' in ledger")
         raise typer.Exit(code=1)
-
     query_string = query_entry.query_string
 
     # Extract and display required parameters
     required_params = ["{" + s + "}" for s in extract_required_params(query_string)]
+    required_string = ', '.join(sorted(required_params))
     if check:
         if required_params:
-            typer.echo(f"Required parameters for query '{name}': {', '.join(sorted(required_params))}")
+            typer.echo(f"Required parameters for query '{name}': {required_string}")
             raise typer.Exit()
         else:
             typer.echo(f"No parameters required for query '{name}'")
@@ -160,19 +164,19 @@ def bean_inquiry(
     # Validate parameters against required ones
     if required_params:
         if not parsed_params:
-            typer.echo("Error: Query requires parameters, but none were provided")
+            typer.echo(f"Error: Query requires parameters, but none were provided: {required_string}")
             raise typer.Exit(code=1)
         if isinstance(parsed_params, dict):
             missing_params = required_params - set(parsed_params.keys())
             if missing_params:
-                typer.echo(f"Error: Missing required parameters: {', '.join(sorted(missing_params))}")
+                typer.echo(f"Error: Missing required parameters: {required_string}")
                 raise typer.Exit(code=1)
         elif isinstance(parsed_params, (list, tuple)):
             if len(parsed_params) < len(required_params):
-                typer.echo(f"Error: Expected {len(required_params)} parameters, but got {len(parsed_params)}")
+                typer.echo(f"Error: Expected {len(required_params)} parameters, but got {len(parsed_params)}: {required_string}")
                 raise typer.Exit(code=1)
         elif isinstance(parsed_params, str) and len(required_params) > 1:
-            typer.echo(f"Error: Single string parameter provided, but multiple parameters required: {', '.join(sorted(required_params))}")
+            typer.echo(f"Error: Single string parameter provided, but multiple parameters required: {required_string}")
             raise typer.Exit(code=1)
 
     # Format query with parameters
