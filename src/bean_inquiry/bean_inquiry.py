@@ -113,7 +113,7 @@ def bean_inquiry(
     )] = False
 ) -> None:
     """
-    Beancount Inquiry - A tool to inject parameters into Beancount queries.
+    Beancount INquiry - A CLI tool to inject parameters INto Beancount queries located in your ledger.
     """
     # Validate output format
     if not validate_format(format):
