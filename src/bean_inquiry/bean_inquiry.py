@@ -4,10 +4,15 @@ import re
 from pathlib import Path
 from typing import Optional, Union, Dict, List, Set
 from typing_extensions import Annotated
+from enum import Enum
 from beancount import loader
 from beancount.core.data import Query
 from beanquery import query
 from beanquery.query_render import render_text, render_csv
+
+class Format(str, Enum):
+    text = "text"
+    csv = "csv"
 
 class Placeholder(str, Enum):
     named = "named"
@@ -121,12 +126,12 @@ def bean_inquiry(
     params: Annotated[List[str], typer.Argument(
         help="List of parameters to parse",
         show_default=False
-    )] = "",
-    format: Annotated[str, typer.Option(
+    )] = None,
+    format: Annotated[Format, typer.Option(
         "--format", "-f",
         help="Output format: 'text' or 'csv'",
         case_sensitive=False
-    )] = "text",
+    )] = Format.text,
     check: Annotated[bool, typer.Option(
         "--check", "-c",
         help="Check a query for what parameters are needed",
@@ -208,9 +213,9 @@ def bean_inquiry(
 
     # Render results
     try:
-        if format == "text":
+        if format == Format.text:
             render_text(rtypes, rrows, options['dcontext'], sys.stdout)
-        elif format == "csv":
+        elif format == Format.csv:
             render_csv(rtypes, rrows, options['dcontext'], sys.stdout)
     except Exception as e:
         typer.echo(f"Error rendering output: {str(e)}")
