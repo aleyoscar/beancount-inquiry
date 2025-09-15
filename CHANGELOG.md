@@ -1,4 +1,12 @@
 
+<a name="v0.2.1"></a>
+## [v0.2.1](https://github.com/aleyoscar/beancount-inquiry/compare/v0.2.0...v0.2.1) (2025-09-15)
+
+### Bug Fixes
+
+* Wrong pypi project name in README
+
+
 <a name="v0.2.0"></a>
 ## [v0.2.0](https://github.com/aleyoscar/beancount-inquiry/compare/v0.1.0...v0.2.0) (2025-09-15)
 
