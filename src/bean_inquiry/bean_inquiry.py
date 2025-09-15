@@ -175,7 +175,7 @@ def bean_inquiry(
     if list_queries:
         for q in query_entries:
             typer.echo(f"{q.name}")
-        raise typer.Exit()
+        exit()
 
     # Get query string
     if not name:
@@ -200,7 +200,7 @@ def bean_inquiry(
             typer.echo(f"Required parameters for query '{name}' ({len(placeholders)}): {placeholders_string}")
         else:
             typer.echo(f"No parameters required for query '{name}'")
-        raise typer.Exit()
+        exit()
 
     # Parse parameters
     parsed_params = parse_params(params, placeholders, placeholders_type, placeholders_string)
