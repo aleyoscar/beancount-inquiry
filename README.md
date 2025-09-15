@@ -38,33 +38,6 @@ See the `--help` for more options
 bean-inquiry --help
 ```
 
-## Options
-
-Usage: bean-inquiry [OPTIONS] LEDGER [NAME] [PARAMS]...
-
-Beancount INquiry - A CLI tool to inject parameters INto Beancount queries
-located in your ledger.
-
-╭─ Arguments ─────────────────────────────────────────────────────────────────╮
-│ *    ledger      FILE         The Beancount ledger file to parse [required] │
-│      name        [NAME]       The name of the query to parse                │
-│      params      [PARAMS]...  List of parameters to parse                   │
-╰─────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ───────────────────────────────────────────────────────────────────╮
-│ --format              -f      [text|csv]  Output format: 'text' or 'csv'    │
-│                                           [default: text]                   │
-│ --check               -c                  Check a query for what parameters │
-│                                           are needed                        │
-│ --list                -l                  List all queries available in     │
-│                                           ledger                            │
-│ --install-completion                      Install completion for the        │
-│                                           current shell.                    │
-│ --show-completion                         Show completion for the current   │
-│                                           shell, to copy it or customize    │
-│                                           the installation.                 │
-│ --help                                    Show this message and exit.       │
-╰─────────────────────────────────────────────────────────────────────────────╯
-
 ## Installation
 
 ### Pipx (recommended)
@@ -72,7 +45,7 @@ located in your ledger.
 Install using pipx from [PyPi](https://pypi.org)
 
 ```
-pipx install beancount-inquiry
+pipx install bean-inquiry
 bean-inquiry --help
 ```
 
