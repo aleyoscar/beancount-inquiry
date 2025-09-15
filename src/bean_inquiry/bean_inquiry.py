@@ -41,7 +41,7 @@ def valid_int(num: str) -> bool:
 
 def load_ledger(ledger_path: Path) -> Optional[tuple[list, dict]]:
     """Load a Beancount ledger file and handle potential errors."""
-    if not ledger_path.is_file():
+    if not ledger_path or not ledger_path.is_file():
         typer.echo(f"Error: '{ledger_path}' is not a valid file")
         return None
     try:
