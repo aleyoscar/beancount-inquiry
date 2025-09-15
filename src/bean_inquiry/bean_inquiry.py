@@ -9,6 +9,7 @@ from beancount import loader
 from beancount.core.data import Query
 from beanquery import query
 from beanquery.query_render import render_text, render_csv
+from . import __version__
 
 class Format(str, Enum):
     text = "text"
@@ -118,7 +119,7 @@ def bean_inquiry(
         dir_okay=False,
         readable=True,
         resolve_path=True
-    )],
+    )] = None,
     name: Annotated[str, typer.Argument(
         help="The name of the query to parse",
         show_default=False
@@ -141,13 +142,26 @@ def bean_inquiry(
         "--list", "-l",
         help="List all queries available in ledger",
         show_default=False
+    )] = False,
+    version: Annotated[bool, typer.Option(
+        "--version", "-v",
+        help="Print version info",
+        show_default=False
     )] = False
 ) -> None:
     """
     Beancount INquiry - A CLI tool to inject parameters INto Beancount queries located in your ledger.
     """
 
+    # Print version info
+    if version:
+        typer.echo(f"Version: {__version__}")
+        exit()
+
     # Load ledger
+    if ledger is None:
+        typer.echo(f"Error: Please provide a ledger file to parse")
+        raise typer.Exit(code=1)
     result = load_ledger(ledger)
     if result is None:
         raise typer.Exit(code=1)
