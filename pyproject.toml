@@ -8,7 +8,6 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "typer (>=0.17.4,<0.18.0)",
     "beanquery (>=0.2.0,<0.3.0)"
 ]
 license = "GPL-3.0-only"
@@ -22,7 +21,7 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [project.scripts]
-bean-inquiry = "bean_inquiry.cli:app"
+bean-inquiry = "bean_inquiry.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/aleyoscar/beancount-inquiry"
