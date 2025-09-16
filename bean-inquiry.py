@@ -1,4 +1,3 @@
-# import typer
 import sys
 import re
 import argparse
@@ -120,13 +119,6 @@ def main():
     parser.add_argument('-v', '--version', action='version', help="Print version info", version=f"%(prog)s {__version__}")
 
     args = parser.parse_args()
-
-    print(f"ledger: {args.ledger} ({type(args.ledger)})")
-    print(f"name: {args.name} ({type(args.name)})")
-    print(f"params: {args.params} ({type(args.params)})")
-    print(f"format: {args.format} ({type(args.format)})")
-    print(f"check: {args.check} ({type(args.check)})")
-    print(f"list: {args.list} ({type(args.list)})")
 
     # Load ledger
     if args.ledger is None:
