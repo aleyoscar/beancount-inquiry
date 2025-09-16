@@ -184,11 +184,12 @@ def bean_inquiry(
     if not name:
         typer.echo("Error: You must supply a query name to parse")
         raise typer.Exit(code=1)
-    query_entry = next((q for q in entries if isinstance(q, Query) and q.name == name), None)
+    query_entry = next((q for q in query_entries if q.name == name), None)
     if not query_entry:
-        typer.echo(f"Error: No query found with name '{name}' in ledger")
+        typer.echo(f"Error: No query found with name '{name}' in ledger. Valid queries are: {', '.join([q.name for q in query_entries])}")
         raise typer.Exit(code=1)
     query_string = query_entry.query_string
+    print(f"QUERY   : {query_string}")
 
     # Extract and display placeholders
     placeholders_result = get_placeholders(query_string)
@@ -217,11 +218,10 @@ def bean_inquiry(
                 query_string = query_string.format(*parsed_params)
             elif isinstance(parsed_params, dict):
                 query_string = query_string.format(**parsed_params)
+            print(f"INJECTED: {query_string}")
     except (KeyError, IndexError, ValueError) as e:
         typer.echo(f"Error formatting query with parameters: {str(e)}")
         raise typer.Exit(code=1)
-
-    typer.echo(f"\nRunning query: {query_string}\n")
 
     # Execute query
     rtypes, rrows = run_query(entries, options, query_string)
@@ -230,6 +230,7 @@ def bean_inquiry(
 
     # Render results
     try:
+        print()
         if format == Format.text:
             render_text(rtypes, rrows, options['dcontext'], sys.stdout)
         elif format == Format.csv:
