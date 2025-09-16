@@ -40,7 +40,11 @@ bean-inquiry --help
 
 ## Installation
 
-### Pipx (recommended)
+There are two different versions of Beancunt INquiry, the **[CLI tool](#cli)** and the **[script](#script)**, the main difference being that the **CLI tool** can run stand-alone and has `typer` and `beanquery` as dependencies, and the **script** does not have dependencies but needs `bean-query` installed on your system and in your PATH. Also currently the **script** can only run query directives that are on a single line in your ledger, whereas the **CLI tool** can run query directives that traverse multiple lines.
+
+### CLI
+
+#### Pipx (recommended)
 
 Install using pipx from [PyPi](https://pypi.org)
 
@@ -49,7 +53,7 @@ pipx install bean-inquiry
 bean-inquiry --help
 ```
 
-### Build from source using pipx
+#### Build from source using pipx
 
 Clone this repository and install systemwide using pipx:
 
@@ -60,7 +64,7 @@ pipx install .
 bean-inquiry --help
 ```
 
-### Run using poetry
+#### Run using poetry
 
 Clone this repository and run using [poetry](https://python-poetry.org/)
 
@@ -69,6 +73,14 @@ git clone https://github.com/aleyoscar/beancount-inquiry.git
 cd beancount-inquiry
 poetry install
 poetry run bean-inquiry
+```
+
+### Script
+
+Does not need `typer` or `beanquery`, but does need the `bean-query` executable installed on your system and in your PATH. Simply download [bean-inquiry.py](https://github.com/aleyoscar/beancount-inquiry/blob/main/bean-inquiry.py) or clone this repository and run the script `bean-inquiry.py` in the root project folder:
+
+```
+python bean-inquiry.py --help
 ```
 
 ## Dependencies
