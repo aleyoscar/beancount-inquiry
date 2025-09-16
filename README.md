@@ -40,7 +40,7 @@ bean-inquiry --help
 
 ## Installation
 
-There are two different versions of Beancunt INquiry, the **[CLI tool](#cli)** and the **[script](#script)**, the main difference being that the **CLI tool** can run stand-alone and has `typer` and `beanquery` as dependencies, and the **script** does not have dependencies but needs `bean-query` installed on your system and in your PATH. Also currently the **script** can only run query directives that are on a single line in your ledger, whereas the **CLI tool** can run query directives that traverse multiple lines.
+There are two different versions of Beancunt INquiry, the **[CLI tool](#cli)** and the **[script](#script)**, the main difference being that the **CLI tool** can run stand-alone and has `beanquery` as a dependency, and the **script** does not have dependencies but needs `bean-query` installed on your system and in your PATH. Also currently the **script** can only run query directives that are on a single line in your ledger, whereas the **CLI tool** can run query directives that traverse multiple lines.
 
 ### CLI
 
@@ -77,7 +77,7 @@ poetry run bean-inquiry
 
 ### Script
 
-Does not need `typer` or `beanquery`, but does need the `bean-query` executable installed on your system and in your PATH. Simply download [bean-inquiry.py](https://github.com/aleyoscar/beancount-inquiry/blob/main/bean-inquiry.py) or clone this repository and run the script `bean-inquiry.py` in the root project folder:
+Does not need `beanquery`, but does need the `bean-query` executable installed on your system and in your PATH. Simply download [bean-inquiry.py](https://github.com/aleyoscar/beancount-inquiry/blob/main/bean-inquiry.py) or clone this repository and run the script `bean-inquiry.py` in the root project folder:
 
 ```
 python bean-inquiry.py --help
@@ -85,4 +85,4 @@ python bean-inquiry.py --help
 
 ## Dependencies
 
-This project uses [typer](https://typer.tiangolo.com/) for the CLI and [beanquery](https://github.com/beancount/beanquery) for running the queries
+This project uses [beancount](https://github.com/beancount/beancount) to parse the ledger and [beanquery](https://github.com/beancount/beanquery) for running the queries.
