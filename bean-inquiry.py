@@ -4,7 +4,6 @@ import argparse
 import subprocess
 import shutil
 from io import TextIOWrapper
-from pathlib import Path
 from typing import Optional, Union, Dict, List, Set
 from enum import Enum
 
@@ -107,7 +106,7 @@ def parse_params(params: List[str], placeholders: List[str], placeholders_type: 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog='Beancount INquiry',
+        prog='bean-inquiry',
         description='Beancount INquiry - A CLI tool to inject parameters INto Beancount queries located in your ledger.'
     )
     parser.add_argument('ledger', help="The Beancount ledger file to parse", nargs="?", type=argparse.FileType('r', encoding='utf-8'))
@@ -131,7 +130,7 @@ def main():
             print(f"{q['name']}")
         sys.exit()
 
-    # # Get query string
+    # Get query string
     if not args.name:
         sys.exit("Error: You must supply a query name to parse")
     query_entry = next((q for q in query_entries if q['name'] == args.name), None)
