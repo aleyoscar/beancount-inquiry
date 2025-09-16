@@ -7,7 +7,7 @@ from io import TextIOWrapper
 from typing import Optional, Union, Dict, List, Set
 from enum import Enum
 
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 class Placeholder(str, Enum):
     named = "named"

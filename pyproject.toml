@@ -1,6 +1,6 @@
 [project]
 name = "bean-inquiry"
-version = "0.2.1"
+version = "0.3.0"
 description = "A CLI tool to INject parameters into Beancount queries specified in your ledger"
 authors = [
     {name = "aleyoscar",email = "mail@aleyoscar.com"}

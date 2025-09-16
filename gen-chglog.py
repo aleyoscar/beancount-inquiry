@@ -1,107 +1,123 @@
-import os, re, subprocess, shutil, typer
-from typing_extensions import Annotated
-from rich.console import Console
-from rich.theme import Theme
-from typing import List
+import sys
+import re
+import argparse
 from pathlib import Path
 
-theme = Theme({"number": "cyan", "error": "red", "file": "grey50", "warning": "yellow", "success": "green"})
-console = Console(theme=theme, highlighter=None)
 semver_pattern = r"^v(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>alpha|beta|rc)(?:\.(?P<version>0|[1-9]\d*))?)?$"
 
 def installed(process):
-	if shutil.which(process):
-		console.print(f"[success]{process} is installed.[/]")
-		return True
-	else:
-		console.print(f"[error]{process} is not installed[/]")
-		return False
+    import os
+    for path in os.environ["PATH"].split(os.pathsep):
+        if os.path.exists(os.path.join(path, process)) or os.path.exists(os.path.join(path, process + '.exe')):
+            print(f"{process} is installed.")
+            return True
+    print(f"ERROR: {process} is not installed")
+    return False
 
 def run(command, message=''):
-	try:
-		result = subprocess.run(
-			command,
-			stdout=subprocess.PIPE,
-			stderr=subprocess.PIPE,
-			check=True,
-			text=True
-		)
-		if message:
-			console.print(message)
-		else:
-			console.print(f"{' '.join(command)} ... [success]DONE[/]")
-		return result.stdout.strip()
-	except subprocess.CalledProcessError as e:
-		error_quit(f"{' '.join(command)} ... [error]ERROR: {e}[/]")
-		return None
+    import subprocess
+    try:
+        result = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        output = result.stdout.strip()
+        # If command is git for-each-ref for tags, take the first line
+        if command[0] == 'git' and 'for-each-ref' in command:
+            output = output.split('\n')[0] if output else ''
+        if message:
+            print(message)
+        else:
+            print(f"{' '.join(command)} ... DONE")
+        return output
+    except subprocess.CalledProcessError as e:
+        error_quit(f"{' '.join(command)} ... ERROR: {e}")
+        return None
 
 def update_version(file_path, old_version, new_version):
-	with open(file_path, 'r', encoding='utf-8') as file:
-		content = file.read()
-	updated_content = content.replace(old_version[1:], new_version[1:])
-
-	with open(file_path, 'w', encoding='utf-8', newline='\n') as file:
-		file.write(updated_content)
-
-	console.print(f"[success]Updated version info: [/][file]{file_path}[/]")
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    updated_content = content.replace(old_version[1:], new_version[1:])
+    with open(file_path, 'w', encoding='utf-8', newline='\n') as file:
+        file.write(updated_content)
+    print(f"Updated version info: {file_path}")
 
 def error_quit(message):
-	console.print(f"[error]<<ERROR>> {message}[/]")
-	exit()
+    print(f"<<ERROR>> {message}")
+    sys.exit(1)
 
-def version_callback(ver_str: str):
-	if not re.fullmatch(semver_pattern, ver_str):
-		raise typer.BadParameter("Please enter a valid semantic version pattern (e.g., v1.0.1)")
-	return ver_str
+def validate_version(ver_str):
+    if not re.fullmatch(semver_pattern, ver_str):
+        error_quit("Please enter a valid semantic version pattern (e.g., v1.0.1)")
+    return ver_str
 
-def main(
-	version: Annotated[str, typer.Argument(
-		help="New version string (e.g., v1.0.1)",
-		callback=version_callback)],
-	replace: Annotated[List[Path], typer.Option(
-		"--replace", "-r",
-		help="A file to search and replace previous version with new version",
-		exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True)]=[],
-	dry: Annotated[bool, typer.Option("--dry", "-d", help="Dry run, do not commit")]=False,
-	output: Annotated[Path, typer.Option("--output", "-o", help="Specify output changelog file, default is 'CHANGELOG.md'",
-		exists=False)]="./CHANGELOG.md",
-	config: Annotated[Path, typer.Option("--config", "-c", help="Specify the config file path, default is '.chglog/config-tag.yml'",
-		exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True)]=".chglog/config-tag.yml",
-	temp: Annotated[Path, typer.Option("--temp", "-t", help="Specify the temp file path, default is '.chglog/current-tag.md'",
-		exists=False)]=".chglog/current-tag.md"
-):
-	"""
-	Create CHANGELOG using git-chglog and update version info
+def main():
+    parser = argparse.ArgumentParser(
+        description="Create CHANGELOG using git-chglog and update version info",
+        epilog="Optionally specify a file to --replace the previous version string with new version\n"
+               "Optionally specify a --dry run without committing or writing to files\n"
+               "Optionally specify the --output CHANGELOG path. Default is 'CHANGELOG.md'\n"
+               "Optionally specify the git-chglog --config path. Default is '.chglog/config-tag.yml'\n"
+               "Optionally specify the --temp file path. Default is '.chglog/current-tag.md'"
+    )
+    parser.add_argument("version", help="New version string (e.g., v1.0.1)")
+    parser.add_argument("--replace", "-r", action="append", type=Path, default=[],
+                        help="A file to search and replace previous version with new version")
+    parser.add_argument("--dry", "-d", action="store_true", help="Dry run, do not commit")
+    parser.add_argument("--output", "-o", type=Path, default=Path("CHANGELOG.md"),
+                        help="Specify output changelog file, default is 'CHANGELOG.md'")
+    parser.add_argument("--config", "-c", type=Path, default=Path(".chglog/config-tag.yml"),
+                        help="Specify the config file path, default is '.chglog/config-tag.yml'")
+    parser.add_argument("--temp", "-t", type=Path, default=Path(".chglog/current-tag.md"),
+                        help="Specify the temp file path, default is '.chglog/current-tag.md'")
 
-	Optionally specify a file to --replace the previous version string with the new version
-	Optionally specify a --dry run without commiting or writing to files
-	Optionally specify the --output CHANGELOG path. Default is 'CHANGELOG.md'
-	Optionally specify the git-chglog --config path. Default is '.chglog/config-tag.yml'
-	Optionally specify the --temp file path. Default is '.chglog/current-tag.md'
-	"""
-	if not installed('git'):
-		error_quit(f"Please install git")
-	if not installed('git-chglog'):
-		error_quit(f"Please install git-chglog")
-	if len(replace):
-		prev_version = run(['git', 'describe', '--tags', '--abbrev=0'], "[success]Getting previous version[/]")
-		if not re.fullmatch(semver_pattern, prev_version):
-			error_quit(f"Invalid previous version [number]{prev_version}[/]")
-		else:
-			console.print(f"Previous version: [number]{prev_version}[/]")
-		for path in replace:
-			if not dry: update_version(path, prev_version, version)
-			else: console.print(f"[success]Will update version info in [file]{path}[/][/]")
-	if dry:
-		run(['git-chglog', '--next-tag', version])
-		run(['git-chglog', '--config', str(config), '--next-tag', version, version])
-	else:
-		run(['git-chglog', '--next-tag', version, '-o', str(output)], f"[success]Writing changelog to [file]{output}[/][/]")
-		run(['git-chglog', '--config', str(config), '--next-tag', version, '-o', str(temp), version], f"[success]Writing tag annotation to [file]{temp}[/][/]")
-		run(['git', 'commit', '-am', f"release {version}"], f"[success]Commiting release[/]")
-		run(['git', 'tag', version, '-F', str(temp)], f"[success]Creating git tag [number]{version}[/][/]")
-	console.print(f"[success]DONE[/]")
-	if not dry: console.print(f"[warning]Remember to run [file]'git push && git push origin --tags'[/][/]")
+    args = parser.parse_args()
 
-if __name__ == '__main__':
-	typer.run(main)
+    # Validate version
+    validate_version(args.version)
+
+    # Check for required tools
+    if not installed('git'):
+        error_quit("Please install git")
+    if not installed('git-chglog'):
+        error_quit("Please install git-chglog")
+
+    # Handle version replacement
+    if args.replace:
+        # Get the latest tag by committer date
+        prev_version_hash = run(['git', 'rev-list', '--tags', '--max-count=1'], "Getting previous version hash")
+        prev_version = run(['git', 'describe', '--tags', prev_version_hash], "Getting previous version")
+        if not prev_version:
+            error_quit("No tags found in the repository")
+        if not re.fullmatch(semver_pattern, prev_version):
+            error_quit(f"Invalid previous version {prev_version}")
+        else:
+            print(f"Previous version: {prev_version}")
+        for path in args.replace:
+            if not path.is_file():
+                error_quit(f"File {path} does not exist or is not a file")
+            if not args.dry:
+                update_version(path, prev_version, args.version)
+            else:
+                print(f"Will update version info in {path}")
+
+    # Handle changelog and tag operations
+    if args.dry:
+        run(['git-chglog', '--next-tag', args.version])
+        run(['git-chglog', '--config', str(args.config), '--next-tag', args.version, args.version])
+    else:
+        run(['git-chglog', '--next-tag', args.version, '-o', str(args.output)], f"Writing changelog to {args.output}")
+        run(['git-chglog', '--config', str(args.config), '--next-tag', args.version, '-o', str(args.temp), args.version],
+            f"Writing tag annotation to {args.temp}")
+        run(['git', 'commit', '-am', f"release {args.version}"], "Committing release")
+        run(['git', 'tag', args.version, '-F', str(args.temp)], f"Creating git tag {args.version}")
+
+    print("DONE")
+    if not args.dry:
+        print("Remember to run 'git push && git push origin --tags'")
+
+if __name__ == "__main__":
+    main()
