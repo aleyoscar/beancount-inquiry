@@ -55,10 +55,10 @@ def load_ledger(ledger_path: Path) -> Optional[tuple[list, dict]]:
         typer.echo(f"Error parsing Beancount file: {str(e)}")
         return None
 
-def get_placeholders(query_string: str) -> Optional[tuple[Set[str], str]]:
+def get_placeholders(query_string: str) -> Optional[tuple[List[str], str]]:
     """Extract parameter placeholders from a query string."""
     # Find all placeholders like {0}, {1}, {name}, or {}
-    placeholders = set()
+    placeholders = []
 
     # Match all placeholders (e.g., {name}, {0}, {})
     matches = re.findall(r'\{([^}]*)\}', query_string)
@@ -70,13 +70,16 @@ def get_placeholders(query_string: str) -> Optional[tuple[Set[str], str]]:
             if which_type(placeholder) != expected:
                 return None
             else:
-                placeholders.add(placeholder)
+                placeholders.append(placeholder)
     else:
         return None
 
+    if expected != Placeholder.blank:
+        placeholders = list(set(placeholders))
+
     return placeholders, expected
 
-def parse_params(params: List[str], placeholders: Set[str], placeholders_type: str, placeholders_string: str) -> Optional[Union[List, Dict]]:
+def parse_params(params: List[str], placeholders: List[str], placeholders_type: str, placeholders_string: str) -> Optional[Union[List, Dict]]:
     """Parse parameters and return either a list or dict"""
     if not params and not placeholders:
         return []
