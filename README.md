@@ -1,5 +1,8 @@
 # Beancount INquiry
 
+> [!NOTE]
+> This project has been moved to the [beancount-tools](https://github.com/aleyoscar/beancount-tools) repo as a sub-command and will no longer recieve updates or maintenance.
+
 A CLI tool to INject parameters into Beancount queries specified in your ledger
 
 ## Usage
